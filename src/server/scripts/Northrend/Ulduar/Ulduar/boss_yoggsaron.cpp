@@ -531,14 +531,52 @@ public:
 
         void SpawnTentacle(uint32 entry)
         {
-            uint32 dist = urand(38, 48);
-            float o = rand_norm() * M_PI * 2;
-            float Zplus = (dist - 38) / 6.5f;
-            if (Creature* cr = me->SummonCreature(entry, me->GetPositionX() + dist * cos(o), me->GetPositionY() + dist * std::sin(o), 327.2 + Zplus, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
-            {
-                cr->CastSpell(cr, SPELL_TENTACLE_ERUPT, true);
-                cr->CastSpell(cr, SPELL_VOID_ZONE_SMALL, true);
-                cr->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+            // Fix to force constrictor tentacles to spawn on a player.
+            if (entry == NPC_CONSTRICTOR_TENTACLE) {
+                Map::PlayerList const& pList = me->GetMap()->GetPlayers();
+                std::vector<Player*> validTargets;
+
+                for(Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
+                {
+                    Player* player = itr->GetSource();
+
+                    // Continue if player is not within 90 yards, dead, or a GM.
+                    if (!me->IsWithinDistInMap(itr->GetSource(), 90, true, false) || !itr->GetSource()->IsAlive() || itr->GetSource()->IsGameMaster())
+                        continue;
+
+                    // Continue if the target is in a brain room (based on their Z-position). This should be safe because if every player is somehow in the brain room, the fight
+                    // should reset.
+                    if (player->GetPositionZ() <= 300.0f)
+                        continue;
+
+                    validTargets.push_back(player);
+                }
+
+                Player* target;
+
+                if (!validTargets.empty()) {
+                    // Pick a player at random from valid targets.
+                    target = validTargets[urand(0, validTargets.size() - 1)];
+
+                    if (Creature* cr = me->SummonCreature(entry, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                    {
+                        cr->CastSpell(cr, SPELL_TENTACLE_ERUPT, true);
+                        cr->CastSpell(cr, SPELL_VOID_ZONE_SMALL, true);
+                        cr->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+                    }
+                }
+            }
+            else {
+                uint32 dist = urand(38, 48);
+                float o = rand_norm() * M_PI * 2;
+                float Zplus = (dist - 38) / 6.5f;
+
+                if (Creature* cr = me->SummonCreature(entry, me->GetPositionX() + dist * cos(o), me->GetPositionY() + dist * std::sin(o), 327.2 + Zplus, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                {
+                    cr->CastSpell(cr, SPELL_TENTACLE_ERUPT, true);
+                    cr->CastSpell(cr, SPELL_VOID_ZONE_SMALL, true);
+                    cr->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+                }
             }
         }
 
@@ -862,7 +900,6 @@ public:
 
                     SpawnTentacle(NPC_CRUSHER_TENTACLE);
                     SpawnTentacle(NPC_CONSTRICTOR_TENTACLE);
-                    SpawnTentacle(NPC_CORRUPTOR_TENTACLE);
                     SpawnTentacle(NPC_CORRUPTOR_TENTACLE);
 
                     events.ScheduleEvent(EVENT_SARA_P2_MALADY, 7000, 0, EVENT_PHASE_TWO);
