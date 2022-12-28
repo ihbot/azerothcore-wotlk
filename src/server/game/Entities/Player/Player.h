@@ -1280,7 +1280,7 @@ public:
     bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
     void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast = false);
     void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
-    void StoreLootItem(uint8 lootSlot, Loot* loot);
+    LootItem* StoreLootItem(uint8 lootSlot, Loot* loot, InventoryResult& msg);
     void UpdateLootAchievements(LootItem* item, Loot* loot);
     void UpdateTitansGrip();
 
@@ -2330,8 +2330,8 @@ public:
     GuidUnorderedSet m_clientGUIDs;
     std::vector<Unit*> m_newVisible; // pussywizard
 
-    bool HaveAtClient(WorldObject const* u) const { return u == this || m_clientGUIDs.find(u->GetGUID()) != m_clientGUIDs.end(); }
-    [[nodiscard]] bool HaveAtClient(ObjectGuid guid) const { return guid == GetGUID() || m_clientGUIDs.find(guid) != m_clientGUIDs.end(); }
+    [[nodiscard]] bool HaveAtClient(WorldObject const* u) const;
+    [[nodiscard]] bool HaveAtClient(ObjectGuid guid) const;
 
     [[nodiscard]] bool IsNeverVisible() const override;
 
