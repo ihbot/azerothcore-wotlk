@@ -709,9 +709,12 @@ public:
                         LMK2->AI()->SetData(1, 4);
                         VX001->AI()->SetData(1, 4);
                         ACU->AI()->SetData(1, 4);
-                        LMK2->CastSpell(LMK2, SPELL_SELF_REPAIR, true); //LMK2->SetHealth( LMK2->GetMaxHealth()/2 );
-                        VX001->CastSpell(VX001, SPELL_SELF_REPAIR, true); //VX001->SetHealth( VX001->GetMaxHealth()/2 );
-                        ACU->CastSpell(ACU, SPELL_SELF_REPAIR, true); //ACU->SetHealth( ACU->GetMaxHealth()/2 );
+                        LMK2->CastSpell(LMK2, SPELL_SELF_REPAIR, true);
+                        LMK2->SetHealth(LMK2->GetMaxHealth() / 2);
+                        VX001->CastSpell(VX001, SPELL_SELF_REPAIR, true);
+                        VX001->SetHealth(VX001->GetMaxHealth() / 2);
+                        ACU->CastSpell(ACU, SPELL_SELF_REPAIR, true);
+                        ACU->SetHealth(ACU->GetMaxHealth() / 2);
                         if( hardmode )
                         {
                             LMK2->CastSpell(LMK2, SPELL_EMERGENCY_MODE, true);
